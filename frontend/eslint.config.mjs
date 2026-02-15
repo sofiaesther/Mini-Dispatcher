@@ -5,9 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
 	...nextVitals,
 	...nextTs,
-	// Override default ignores of eslint-config-next.
 	globalIgnores([
-		// Default ignores of eslint-config-next:
 		".next/**",
 		"out/**",
 		"build/**",
@@ -15,9 +13,7 @@ const eslintConfig = defineConfig([
 	]),
 	{
 		rules: {
-			// 1 tab = 4 spaces
 			indent: ["error", "tab", { SwitchCase: 1 }],
-			// Semicolons mandatory at end of lines
 			semi: ["error", "always"],
 		},
 	},

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { ClientProvider } from "@/context/ClientContext";
+import { ClientProvider } from "@context";
 
 const outfit = Outfit({
 	variable: "--font-outfit",
