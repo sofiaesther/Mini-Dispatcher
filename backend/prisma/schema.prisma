@@ -1,0 +1,59 @@
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Driver {
+    id           String   @id @default(uuid())
+    name         String
+    email        String   @unique
+    phone        String
+    passwordHash String
+    city         String?
+    createdAt    DateTime @default(now())
+    car          Json?    // { model, plate, year, color }
+    presence     DriverPresence?
+    rides        Ride[]
+}
+
+model DriverPresence {
+    driverId  String   @unique
+    driver    Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+    lat       Float    @default(0)
+    lon       Float    @default(0)
+    status    String   // available | busy | offline
+    updatedAt DateTime @updatedAt
+}
+
+model Ride {
+    id           String   @id @default(uuid())
+    driverId     String
+    driver       Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+    passengerId  String
+    status       String   // accepted | initiated | completed
+    fromLat      Float
+    fromLon      Float
+    toLat        Float
+    toLon        Float
+    price        Float
+    distanceKm   Float
+    durationMin  Float
+    createdAt    DateTime @default(now())
+    evaluations  RideEvaluation[]
+}
+
+model RideEvaluation {
+    id           String   @id @default(uuid())
+    rideId       String
+    ride         Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+    passengerId  String
+    driverId     String
+    rating       Int      // 1-5
+    comment      String?
+    createdAt    DateTime @default(now())
+}

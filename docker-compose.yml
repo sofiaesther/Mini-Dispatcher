@@ -1,0 +1,52 @@
+services:
+    postgres:
+        image: postgres:16-alpine
+        container_name: mini-dispatcher-db
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: mini_dispatcher
+        ports:
+            - "5433:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -d mini_dispatcher"]
+            interval: 3s
+            timeout: 3s
+            retries: 5
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: mini-dispatcher-backend
+        environment:
+            DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mini_dispatcher
+            PORT: 3001
+        ports:
+            - "3001:3001"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3001/"]
+            interval: 5s
+            timeout: 3s
+            retries: 3
+            start_period: 10s
+
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: mini-dispatcher-frontend
+        environment:
+            NODE_ENV: production
+        ports:
+            - "3000:3000"
+        depends_on:
+            - backend
+
+volumes:
+    postgres_data:
